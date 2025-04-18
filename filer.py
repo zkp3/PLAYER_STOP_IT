@@ -13,7 +13,7 @@ blocks = [
     (800, 550, 350, 1)
 ]
 
-screen = pygame.display.set_mode((wid, hei))
+screen = pygame.display.set_mode((wid, hei), pygame.NOFRAME)
 pygame.display.set_caption('TEST_ROOM')
 
 def playerMove(player, blocks:list, speedX, speedY):
