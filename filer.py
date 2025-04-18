@@ -1,48 +1,72 @@
-import pygame, random, sys
+import pygame, sys
 pygame.init()
+
 wid, hei = 1280, 900
 
 x_player, y_player = wid/2, hei/2
-speed_player_y = speed_player_x = 5
-down_move = up_move = left_move = right_move = True
+speed_player_y = speed_player_x = 30
 
-#короч, размер не меньше 5
-x_rect1, y_rect1, wid_rect1, hei_rect1 = 200, 200, 200, 150
-x_rect2, y_rect2, wid_rect2, hei_rect2 = 200, 550, 100, 250
-x_rect3, y_rect3, wid_rect3, hei_rect3 = 800, 200, 5, 350
-x_rect4, y_rect4, wid_rect4, hei_rect4 = 800, 550, 350, 5
+blocks = [
+    (200, 200, 200, 150),
+    (200, 550, 100, 250),
+    (800, 200, 1, 350),
+    (800, 550, 350, 1)
+]
 
-def checkerMove(image, blocks):
-    imageX, imageY, imageWid, imageHei = image
-    image_rect = pygame.Rect(imageX, imageY, imageWid, imageHei)
+screen = pygame.display.set_mode((wid, hei))
+pygame.display.set_caption('TEST_ROOM')
+
+def playerMove(player, blocks:list, speedX, speedY):
+    playerX, playerY, playerWid, playerHei = player
+    player_rect = pygame.Rect(playerX, playerY, playerWid, playerHei)
     left_move = right_move = up_move = down_move = True
+    left_move1 = right_move1 = up_move1 = down_move1 = True
+
     for block in blocks:
         blockX, blockY, blockWid, blockHei = block
 
-        block_right = pygame.Rect(blockX + blockWid, blockY, 1, blockHei)
-        block_left = pygame.Rect(blockX - 1, blockY, 1, blockHei)
-        block_bottom = pygame.Rect(blockX, blockY + blockHei, blockWid, 1)
-        block_top = pygame.Rect(blockX, blockY - 1, blockWid, 1)
+        block_right = pygame.Rect(blockX + blockWid, blockY, speedX, blockHei)
+        block_left = pygame.Rect(blockX - speedX, blockY, speedX, blockHei)
+        block_bottom = pygame.Rect(blockX, blockY + blockHei, blockWid, speedY)
+        block_top = pygame.Rect(blockX, blockY - speedY, blockWid, speedY)
 
-        left_move = left_move and not image_rect.colliderect(block_right)
-        right_move = right_move and not image_rect.colliderect(block_left)
-        up_move = up_move and not image_rect.colliderect(block_bottom)
-        down_move = down_move and not image_rect.colliderect(block_top)
+        block_right1 = pygame.Rect(blockX + blockWid, blockY, 1, blockHei)
+        block_left1 = pygame.Rect(blockX - 1, blockY, 1, blockHei)
+        block_bottom1 = pygame.Rect(blockX, blockY + blockHei, blockWid, 1)
+        block_top1 = pygame.Rect(blockX, blockY - 1, blockWid, 1)
 
-    return left_move, right_move, up_move, down_move
+        left_move = left_move and not player_rect.colliderect(block_right)
+        right_move = right_move and not player_rect.colliderect(block_left)
+        up_move = up_move and not player_rect.colliderect(block_bottom)
+        down_move = down_move and not player_rect.colliderect(block_top)
 
-screen = pygame.display.set_mode((wid, hei))
-pygame.display.set_caption("TEST_ROOM")
+        left_move1 = left_move1 and not player_rect.colliderect(block_right1)
+        right_move1 = right_move1 and not player_rect.colliderect(block_left1)
+        up_move1 = up_move1 and not player_rect.colliderect(block_bottom1)
+        down_move1 = down_move1 and not player_rect.colliderect(block_top1)
+    if keys[pygame.K_LEFT]:
+        if left_move:
+            playerX -= speedX
+        elif left_move1:
+            playerX -= 1
+    if keys[pygame.K_RIGHT]:
+        if right_move:
+            playerX += speedX
+        elif right_move1:
+            playerX += 1
+    if keys[pygame.K_UP]:
+        if up_move:
+            playerY -= speedY
+        elif up_move1:
+            playerY -= 1
+    if keys[pygame.K_DOWN]:
+        if down_move:
+            playerY += speedY
+        elif down_move1:
+            playerY += 1
+    return playerX, playerY
 
 run = True
-
-blocks = [
-    (x_rect1, y_rect1, wid_rect1, hei_rect1),
-    (x_rect2, y_rect2, wid_rect2, hei_rect2),
-    (x_rect3, y_rect3, wid_rect3, hei_rect3),
-    (x_rect4, y_rect4, wid_rect4, hei_rect4)
-]
-
 while run:
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
@@ -61,16 +85,7 @@ while run:
         block_rect = pygame.Rect(x_rect, y_rect, wid_rect, hei_rect)
         pygame.draw.rect(screen, (0, 255, 255), block_rect)
 
-    left_move, right_move, up_move, down_move = checkerMove((x_player, y_player, 40, 70), blocks)
-
-    if keys[pygame.K_LEFT] and left_move:
-        x_player -= speed_player_x
-    if keys[pygame.K_RIGHT] and right_move:
-        x_player += speed_player_x
-    if keys[pygame.K_UP] and up_move:
-        y_player -= speed_player_y
-    if keys[pygame.K_DOWN] and down_move:
-        y_player += speed_player_y
+    x_player, y_player = playerMove((x_player, y_player, 40, 70), blocks, speed_player_x, speed_player_y)
 
     pygame.time.Clock().tick(60)
     pygame.display.flip()
