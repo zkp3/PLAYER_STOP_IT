@@ -4,7 +4,7 @@ pygame.init()
 wid, hei = 1280, 900
 
 x_player, y_player = wid/2, hei/2
-speed_player_y = speed_player_x = 30
+speed_player_y = speed_player_x = 50
 
 blocks = [
     (200, 200, 200, 150),
@@ -16,55 +16,65 @@ blocks = [
 screen = pygame.display.set_mode((wid, hei), pygame.NOFRAME)
 pygame.display.set_caption('TEST_ROOM')
 
-def playerMove(player, blocks:list, speedX, speedY):
+def playerMove(player, blocks, speedX, speedY):
+    keys = pygame.key.get_pressed()
     playerX, playerY, playerWid, playerHei = player
     player_rect = pygame.Rect(playerX, playerY, playerWid, playerHei)
-    left_move = right_move = up_move = down_move = True
-    left_move1 = right_move1 = up_move1 = down_move1 = True
 
-    for block in blocks:
-        blockX, blockY, blockWid, blockHei = block
+    def check_collision(blocks, player_rect, speedX, speedY):
+        left_move = right_move = up_move = down_move = True
+        for block in blocks:
+            blockX, blockY, blockWid, blockHei = block
 
-        block_right = pygame.Rect(blockX + blockWid, blockY, speedX, blockHei)
-        block_left = pygame.Rect(blockX - speedX, blockY, speedX, blockHei)
-        block_bottom = pygame.Rect(blockX, blockY + blockHei, blockWid, speedY)
-        block_top = pygame.Rect(blockX, blockY - speedY, blockWid, speedY)
+            left_move = left_move and not player_rect.colliderect(pygame.Rect(blockX + blockWid, blockY, speedX, blockHei))
+            right_move = right_move and not player_rect.colliderect(pygame.Rect(blockX - speedX, blockY, speedX, blockHei))
+            up_move = up_move and not player_rect.colliderect(pygame.Rect(blockX, blockY + blockHei, blockWid, speedY))
+            down_move = down_move and not player_rect.colliderect(pygame.Rect(blockX, blockY - speedY, blockWid, speedY))
 
-        block_right1 = pygame.Rect(blockX + blockWid, blockY, 1, blockHei)
-        block_left1 = pygame.Rect(blockX - 1, blockY, 1, blockHei)
-        block_bottom1 = pygame.Rect(blockX, blockY + blockHei, blockWid, 1)
-        block_top1 = pygame.Rect(blockX, blockY - 1, blockWid, 1)
+        return left_move, right_move, up_move, down_move
 
-        left_move = left_move and not player_rect.colliderect(block_right)
-        right_move = right_move and not player_rect.colliderect(block_left)
-        up_move = up_move and not player_rect.colliderect(block_bottom)
-        down_move = down_move and not player_rect.colliderect(block_top)
-
-        left_move1 = left_move1 and not player_rect.colliderect(block_right1)
-        right_move1 = right_move1 and not player_rect.colliderect(block_left1)
-        up_move1 = up_move1 and not player_rect.colliderect(block_bottom1)
-        down_move1 = down_move1 and not player_rect.colliderect(block_top1)
     if keys[pygame.K_LEFT]:
-        if left_move:
-            playerX -= speedX
-        elif left_move1:
-            playerX -= 1
-    if keys[pygame.K_RIGHT]:
-        if right_move:
-            playerX += speedX
-        elif right_move1:
-            playerX += 1
+        orig_sdX = speedX
+        while speedX > 0:
+            left_move, _, _, _ = check_collision(blocks, player_rect, speedX, speedY)
+            if left_move:
+                playerX -= speedX
+                break
+            speedX -= 1
+        speedX = orig_sdX
+
+    elif keys[pygame.K_RIGHT]:
+        orig_sdX = speedX
+        while speedX > 0:
+            _, right_move, _, _ = check_collision(blocks, player_rect, speedX, speedY)
+            if right_move:
+                playerX += speedX
+                break
+            speedX -= 1
+        speedX = orig_sdX
+
     if keys[pygame.K_UP]:
-        if up_move:
-            playerY -= speedY
-        elif up_move1:
-            playerY -= 1
-    if keys[pygame.K_DOWN]:
-        if down_move:
-            playerY += speedY
-        elif down_move1:
-            playerY += 1
+        orig_sdY = speedY
+        while speedY > 0:
+            _, _, up_move, _ = check_collision(blocks, player_rect, speedX, speedY)
+            if up_move:
+                playerY -= speedY
+                break
+            speedY -= 1
+        speedY = orig_sdY
+
+    elif keys[pygame.K_DOWN]:
+        orig_sdY = speedY
+        while speedY > 0:
+            _, _, _, down_move = check_collision(blocks, player_rect, speedX, speedY)
+            if down_move:
+                playerY += speedY
+                break
+            speedY -= 1
+        speedY = orig_sdY
+
     return playerX, playerY
+
 
 run = True
 while run:
@@ -92,3 +102,4 @@ while run:
 
 pygame.quit()
 sys.exit()
+
