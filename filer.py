@@ -6,11 +6,16 @@ wid, hei = 1280, 900
 x_player, y_player = wid/2, hei/2
 speed_player_y = speed_player_x = 50
 
+# x, y, block_width, block_height
 blocks = [
     (200, 200, 200, 150),
     (200, 550, 100, 250),
     (800, 200, 1, 350),
-    (800, 550, 350, 1)
+    (800, 550, 350, 1),
+    (-1, 0, 1, hei),
+    (wid, 0, 1, hei),
+    (0, -1, wid, 1),
+    (0, hei, wid, 1)
 ]
 
 screen = pygame.display.set_mode((wid, hei), pygame.NOFRAME)
